@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人民币读数练习</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f9ff 0%, #e8f0ff 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(26, 95, 180, 0.1);
+            padding: 30px;
+            margin-top: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #1a5fb4;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .amount-display {
+            background-color: #f8fafd;
+            border-radius: 18px;
+            padding: 50px 30px;
+            border: 3px solid #1a5fb4;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 20px rgba(26, 95, 180, 0.15);
+            position: relative;
+            overflow: hidden;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .amount-display::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(#e8f0ff 2px, transparent 2px);
+            background-size: 20px 20px;
+            opacity: 0.3;
+            z-index: 0;
+        }
+        
+        .amount-value {
+            font-size: 4.5rem;
+            font-weight: bold;
+            color: #1a5fb4;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+        
+        .amount-unit {
+            font-size: 1.8rem;
+            color: #666;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        
+        button {
+            padding: 18px 50px;
+            font-size: 1.3rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .generate-btn {
+            background: linear-gradient(to right, #1a5fb4, #2d7cd6);
+            color: white;
+        }
+        
+        .generate-btn:hover {
+            background: linear-gradient(to right, #0d4a97, #1a5fb4);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background-color: #f8fafd;
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #e1e8f0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #1a5fb4;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: #666;
+        }
+        
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #777;
+            font-size: 0.9rem;
+            padding: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .amount-value {
+                font-size: 3.5rem;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+                padding: 16px 30px;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+        
+        .pulse {
+            animation: pulse 0.5s ease;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .amount-label {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* 专门为大数字添加的样式 */
+        .large-number {
+            font-size: 4rem !important;
+        }
+        
+        .very-large-number {
+            font-size: 3.5rem !important;
+        }
+        
+        .huge-number {
+            font-size: 3rem !important;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>人民币读数练习</h1>
+    </header>
+    
+    <div class="container">
+        <div class="amount-display">
+            <div class="amount-label">金额：</div>
+            <div class="amount-value" id="amountValue">0.00</div>
+            <div class="amount-unit">元</div>
+        </div>
+        
+        <div class="controls">
+            <button class="generate-btn" id="generateBtn">
+                <i class="fas fa-redo-alt"></i> 生成新金额
+            </button>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="practiceCount">0</div>
+                <div class="stat-label">练习次数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="currentRange">小数额</div>
+                <div class="stat-label">当前范围</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="avgAmount">0</div>
+                <div class="stat-label">平均金额(元)</div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>人民币读数练习工具</p>
+    </footer>
+
+    <script>
+        // 当前生成的金额
+        let currentAmount = 0;
+        let practiceCount = 0;
+        let totalAmount = 0;
+        let currentRange = "";
+        
+        // DOM 元素
+        const amountValue = document.getElementById('amountValue');
+        const generateBtn = document.getElementById('generateBtn');
+        const practiceCountEl = document.getElementById('practiceCount');
+        const currentRangeEl = document.getElementById('currentRange');
+        const avgAmountEl = document.getElementById('avgAmount');
+        
+        // 按照指定概率分布生成随机金额
+        function generateRandomAmount() {
+            // 生成一个0-100的随机数来决定使用哪个范围
+            const randomPercent = Math.random() * 100;
+            
+            let min = 0;
+            let max = 0;
+            let hasDecimal = Math.random() > 0.5; // 50%概率带小数
+            
+            // 按照指定概率分布选择范围
+            if (randomPercent < 40) {
+                // 0-1000元范围，40%概率
+                min = 0;
+                max = 1000;
+                currentRange = "小数额";
+                // 小数额更多概率带小数
+                hasDecimal = Math.random() > 0.3;
+            } else if (randomPercent < 80) {
+                // 1000-10000元范围，40%概率
+                min = 1000;
+                max = 10000;
+                currentRange = "中数额";
+            } else {
+                // 10000-100000000元范围，20%概率
+                min = 10000;
+                max = 100000000;
+                currentRange = "大数额";
+                // 大数额减少带小数的概率
+                hasDecimal = Math.random() > 0.7;
+            }
+            
+            if (hasDecimal) {
+                // 生成带角分的金额
+                currentAmount = min + Math.random() * (max - min);
+                // 保留两位小数
+                currentAmount = Math.round(currentAmount * 100) / 100;
+            } else {
+                // 生成整数金额
+                currentAmount = Math.floor(min + Math.random() * (max - min + 1));
+                // 确保至少1元
+                if (currentAmount < 1 && min === 0) {
+                    currentAmount = 1;
+                }
+            }
+            
+            // 更新显示
+            updateDisplay();
+            
+            // 更新统计数据
+            updateStats();
+            
+            // 添加动画效果
+            amountValue.classList.add('pulse');
+            setTimeout(() => {
+                amountValue.classList.remove('pulse');
+            }, 500);
+        }
+        
+        // 格式化金额，去除逗号分隔符
+        function formatAmount(amount) {
+            // 将数字转换为字符串
+            let amountStr = amount.toString();
+            
+            // 如果是小数，分割整数和小数部分
+            let integerPart = amountStr;
+            let decimalPart = "";
+            
+            if (amountStr.includes('.')) {
+                const parts = amountStr.split('.');
+                integerPart = parts[0];
+                decimalPart = parts[1];
+                
+                // 确保小数部分有两位
+                if (decimalPart.length === 1) {
+                    decimalPart += '0';
+                } else if (decimalPart.length > 2) {
+                    decimalPart = decimalPart.substring(0, 2);
+                }
+            }
+            
+            // 返回纯数字，不加逗号
+            if (decimalPart) {
+                return integerPart + "." + decimalPart;
+            } else {
+                return integerPart + ".00";
+            }
+        }
+        
+        // 更新金额显示
+        function updateDisplay() {
+            // 使用自定义格式化函数，去除逗号
+            const formattedAmount = formatAmount(currentAmount);
+            amountValue.textContent = formattedAmount;
+            
+            // 根据数字长度调整字体大小
+            adjustFontSize(formattedAmount);
+        }
+        
+        // 根据数字长度调整字体大小
+        function adjustFontSize(amountStr) {
+            // 移除小数点和小数部分计算长度
+            const numLength = amountStr.replace('.', '').length;
+            
+            // 根据长度调整字体大小
+            amountValue.classList.remove('large-number', 'very-large-number', 'huge-number');
+            
+            if (numLength > 12) {
+                amountValue.classList.add('huge-number');
+            } else if (numLength > 9) {
+                amountValue.classList.add('very-large-number');
+            } else if (numLength > 6) {
+                amountValue.classList.add('large-number');
+            }
+        }
+        
+        // 更新统计信息
+        function updateStats() {
+            // 更新练习次数
+            practiceCount++;
+            practiceCountEl.textContent = practiceCount;
+            
+            // 更新当前范围
+            currentRangeEl.textContent = currentRange;
+            
+            // 更新总金额
+            totalAmount += currentAmount;
+            
+            // 更新平均金额（去除逗号）
+            const avg = totalAmount / practiceCount;
+            avgAmountEl.textContent = formatAmount(avg).replace('.00', '');
+        }
+        
+        // 初始化
+        function init() {
+            // 绑定按钮事件
+            generateBtn.addEventListener('click', generateRandomAmount);
+            
+            // 生成第一个金额
+            generateRandomAmount();
+            
+            // 添加键盘快捷键支持
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' || e.code === 'Enter') {
+                    generateRandomAmount();
+                    e.preventDefault();
+                }
+            });
+            
+            // 添加点击金额区域也可以生成新金额
+            amountValue.parentElement.addEventListener('click', () => {
+                generateRandomAmount();
+            });
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
